@@ -51,12 +51,71 @@ const SettingsRow = ({ style = {}, icon, left, children }) => (
     <View style={{ flex: 1 }}>{children}</View>
   </View>
 )
-
 SettingsRow.propTypes = {
   style: ViewPropTypes.style,
   children: PropTypes.any,
   icon: PropTypes.string,
   left: PropTypes.node
+}
+
+const RestPeriodSetting = ({ restPeriod, onChange, onComplete, setRestPeriod }) =>
+  <Card>
+    <SettingsRow
+      icon="md-stopwatch"
+      left={
+        <View
+          style={{ justifyContent: 'center', alignItems: 'center' }}
+        >
+          <Ionicons name="md-stopwatch" size={24} />
+          <Text>{restPeriod}s</Text>
+        </View>
+      }
+    >
+      <Subheading>Rest period</Subheading>
+      <Slider
+        value={restPeriod}
+        thumbTintColor="#88f"
+        step={1}
+        maximumValue={180}
+        minimumValue={10}
+        onValueChange={onChange}
+        onSlidingComplete={onComplete}
+      />
+      <Card.Actions
+        style={{ marginTop: -16, justifyContent: 'flex-end' }}
+      >
+        <Button onPress={() => setRestPeriod(60)}>60s</Button>
+        <Button onPress={() => setRestPeriod(90)}>90s</Button>
+        <Button onPress={() => setRestPeriod(120)}>
+          2 mins
+        </Button>
+      </Card.Actions>
+    </SettingsRow>
+  </Card>
+RestPeriodSetting.propTypes = {
+  restPeriod: PropTypes.number,
+  onComplete: PropTypes.func,
+  onChange: PropTypes.func,
+  setRestPeriod: PropTypes.func
+}
+
+const AddExercise = ({ newExerciseName, onChange, onAdd }) =>
+  <View style={{ paddingLeft: 24, paddingRight: 12, flexDirection: 'row', alignItems: 'center' }}>
+    <View style={{  flex: 1 }}>
+      <TextInput
+        style={{ flex: 1 }}
+        label="New Exercise"
+        placeholder="New Exercise"
+        value={newExerciseName}
+        onChangeText={onChange}
+      />
+    </View>
+    <IconButton icon='add' onPress={onAdd} disabled={this.state.newExerciseName === ''} />
+  </View>
+AddExercise.propTypes = {
+  newExerciseName: PropTypes.string,
+  onChange: PropTypes.func,
+  onAdd: PropTypes.func
 }
 
 class Settings extends React.Component {
@@ -89,20 +148,20 @@ class Settings extends React.Component {
     })
   }
 
-  restPeriodChanged(restPeriod) {
-    this.setState({ restPeriod })
-  }
-
-  setRestPeriod(restPeriod) {
-    this.setState({ restPeriod }, () => this.saveSettings())
-  }
-
   saveSettings() {
     const mapState = ({ exercises, restPeriod }) => ({
       exercises,
       restPeriod
     })
     AsyncStorage.setItem('settings', JSON.stringify(mapState(this.state)))
+  }
+
+  restPeriodChanged(restPeriod) {
+    this.setState({ restPeriod })
+  }
+
+  setRestPeriod(restPeriod) {
+    this.setState({ restPeriod }, () => this.saveSettings())
   }
 
   removeExercise(index) {
@@ -161,39 +220,9 @@ class Settings extends React.Component {
             <Appbar.Header>
               <Appbar.Content title="Settings" />
             </Appbar.Header>
-            <Card>
-              <SettingsRow
-                icon="md-stopwatch"
-                left={
-                  <View
-                    style={{ justifyContent: 'center', alignItems: 'center' }}
-                  >
-                    <Ionicons name="md-stopwatch" size={24} />
-                    <Text>{this.state.restPeriod}s</Text>
-                  </View>
-                }
-              >
-                <Subheading>Rest period</Subheading>
-                <Slider
-                  value={this.state.restPeriod}
-                  thumbTintColor="#88f"
-                  step={1}
-                  maximumValue={180}
-                  minimumValue={10}
-                  onValueChange={this.restPeriodChanged.bind(this)}
-                  onSlidingComplete={this.saveSettings.bind(this)}
-                />
-                <Card.Actions
-                  style={{ marginTop: -16, justifyContent: 'flex-end' }}
-                >
-                  <Button onPress={() => this.setRestPeriod(60)}>60s</Button>
-                  <Button onPress={() => this.setRestPeriod(90)}>90s</Button>
-                  <Button onPress={() => this.setRestPeriod(120)}>
-                    2 mins
-                  </Button>
-                </Card.Actions>
-              </SettingsRow>
-            </Card>
+
+            <RestPeriodSetting restPeriod={this.state.restPeriod} onChange={this.restPeriodChanged.bind(this)} onComplete={this.saveSettings.bind(this)} setRestPeriod={time => this.setRestPeriod(time)} />
+
             <Subheading style={{ padding: 16 }}>Exercises</Subheading>
             <Card>
               <Card.Content>
@@ -225,27 +254,14 @@ class Settings extends React.Component {
                   scrollPercent={5}
                   onMoveEnd={({ data }) => this.setState({ exercises: data })}
                 />
-                <SettingsRow>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <View style={{ borderColor: '#888', borderBottomWidth: 2, flex: 1 }}>
-                      <TextInput
-                        style={{ flex: 1 }}
-                        label="New Exercise"
-                        value={this.state.newExerciseName}
-                        onChangeText={text =>
-                          this.setState({ newExerciseName: text })
-                        }
-                      />
-                    </View>
-                    <Button
-                      style={{ flex: 0 }}
-                      onPress={() => this.addExercise()}
-                      disabled={this.state.newExerciseName === ''}
-                    >
-                      Add
-                    </Button>
-                  </View>
-                </SettingsRow>
+                <Divider />
+                <AddExercise
+                  newExerciseName={this.state.newExerciseName}
+                  onChange={text =>
+                    this.setState({ newExerciseName: text })
+                  }
+                  onAdd={() => this.addExercise()}
+                  />
               </Card.Content>
             </Card>
           </View>

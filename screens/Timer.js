@@ -10,10 +10,16 @@ import {
 } from 'react-native'
 import { NavigationEvents } from 'react-navigation'
 import { KeepAwake } from 'expo'
-import { TouchableRipple, Appbar } from 'react-native-paper'
+import { Appbar } from 'react-native-paper'
 
 import Exercises from '../components/Exercises'
+import Time from '../components/Time'
+import TotalTime from '../components/TotalTime'
+import HintText from '../components/HintText'
 
+import { format } from '../utils/time'
+
+const fontFamily = Platform.OS === 'ios' ? 'Courier' : 'monospace'
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -25,14 +31,6 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   }
 })
-
-const pad = n => (n < 10 ? `0${n}` : n)
-
-const minutes = time => Math.floor(time / 60000)
-const seconds = time => pad(Math.floor(time / 1000) % 60)
-const tens = time => (Math.floor((time % 1000) / 100))
-
-const format = time => `${minutes(time)}:${seconds(time)}.${tens(time)}`
 
 class Timer extends React.Component {
   constructor(props) {
@@ -53,16 +51,15 @@ class Timer extends React.Component {
   }
 
   loadSettings() {
-    AsyncStorage.getItem('settings')
-      .then(settings => {
-        if (settings) {
-          const { restPeriod, exercises } = JSON.parse(settings)
-          this.setState({
-            restPeriod: restPeriod * 1000,
-            exercises
-          })
-        }
-      })
+    AsyncStorage.getItem('settings').then(settings => {
+      if (settings) {
+        const { restPeriod, exercises } = JSON.parse(settings)
+        this.setState({
+          restPeriod: restPeriod * 1000,
+          exercises
+        })
+      }
+    })
   }
 
   start() {
@@ -113,50 +110,38 @@ class Timer extends React.Component {
   }
 
   render() {
-    const totalTime =
-      this.state.time + this.state.times.reduce((sum, x) => sum + x, 0)
-
-    const fontFamily = Platform.OS === 'ios' ? 'Courier' : 'monospace'
-    const timeStyle = {
-      fontSize: 72,
-      fontFamily,
-      alignSelf: 'stretch',
-      textAlign: 'center',
-      color: this.state.time > this.state.restPeriod ? '#f00' : '#000'
-    }
-    const totalTimeStyle = {
-      fontSize: 24,
-      color: '#888',
-      fontFamily
-    }
-    const hintTextStyle = {
-      fontSize: 24,
-      color: this.startedAt ? 'rgba(0,0,0,0)' : '#888',
-      margin: 32,
-      fontFamily
-    }
-
-    const refreshControl = <RefreshControl refreshing={false} onRefresh={this.resetTimer.bind(this)} />
+    const refreshControl = (
+      <RefreshControl
+        refreshing={false}
+        onRefresh={this.resetTimer.bind(this)}
+      />
+    )
 
     return (
       <View style={styles.container}>
         <NavigationEvents onWillFocus={() => this.loadSettings()} />
         <Appbar.Header>
-          <Appbar.Content title='Timer' />
+          <Appbar.Content title="Timer" />
         </Appbar.Header>
 
         <ScrollView refreshControl={refreshControl}>
           <View style={styles.content}>
-            <Exercises exercises={this.state.exercises} counts={this.state.counts} onInc={this.incCount.bind(this)} />
-            <Text style={hintTextStyle}>Press time to start, pull down to reset</Text>
-            {/* <TouchableHighlight underlayColor={'#88f'} style={{ alignSelf: 'stretch' }} onPress={this.split.bind(this)}> */}
-            <TouchableRipple style={{ alignSelf: 'stretch' }} onPress={this.split.bind(this)} rippleColor="rgba(128, 128, 255, .32)">
-              <Text style={timeStyle}>{format(this.state.time)}</Text>
-            </TouchableRipple>
-            {/* </TouchableHighlight> */}
-            {this.state.times.length > 0 && <Text style={totalTimeStyle}>{format(totalTime)}</Text>}
+            <Exercises
+              exercises={this.state.exercises}
+              counts={this.state.counts}
+              onInc={this.incCount.bind(this)}
+            />
+            <HintText hide={!!this.startedAt} />
+            <Time
+              time={this.state.time}
+              doneResting={this.state.time > this.state.restPeriod}
+              onPress={this.split.bind(this)}
+            />
+            <TotalTime time={this.state.time} times={this.state.times} />
             {[...this.state.times].reverse().map((time, i) => (
-              <Text style={{ fontFamily }} key={i}>{format(time)}</Text>
+              <Text style={{ fontFamily }} key={i}>
+                {format(time)}
+              </Text>
             ))}
           </View>
         </ScrollView>
