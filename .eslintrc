@@ -1,0 +1,9 @@
+{
+  "extends": "@iteam/eslint-config-iteam-react",
+  "rules": {
+    "space-before-function-paren": "off"
+  },
+  "globals": {
+    "module": true
+  }
+}
