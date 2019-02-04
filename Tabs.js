@@ -34,7 +34,7 @@ const TabNavigator = createMaterialBottomTabNavigator(
     }
   },
   {
-    initialRouteName: 'Settings'
+    initialRouteName: 'Timer'
   }
 )
 
