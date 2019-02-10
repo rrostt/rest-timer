@@ -110,7 +110,7 @@ const AddExercise = ({ newExerciseName, onChange, onAdd }) =>
         onChangeText={onChange}
       />
     </View>
-    <IconButton icon='add' onPress={onAdd} disabled={this.state.newExerciseName === ''} />
+    <IconButton icon='add' onPress={onAdd} disabled={newExerciseName === ''} />
   </View>
 AddExercise.propTypes = {
   newExerciseName: PropTypes.string,
