@@ -59,38 +59,47 @@ SettingsRow.propTypes = {
 }
 
 const RestPeriodSetting = ({ restPeriod, onChange, onComplete, setRestPeriod }) =>
-  <Card>
-    <SettingsRow
-      icon="md-stopwatch"
-      left={
+  <Card style={{ margin: 4 }}>
+    <View style={{ flex: 1, flexDirection: 'row', paddingHorizontal: 12 }}>
+      <View
+        style={{
+          // width: 64,
+          padding: 16,
+          flex: 0,
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
         <View
           style={{ justifyContent: 'center', alignItems: 'center' }}
         >
           <Ionicons name="md-stopwatch" size={24} />
-          <Text>{restPeriod}s</Text>
+          <Text style={{ fontSize: 10 }}>{restPeriod}s</Text>
         </View>
-      }
-    >
-      <Subheading>Rest period</Subheading>
-      <Slider
-        value={restPeriod}
-        thumbTintColor="#88f"
-        step={1}
-        maximumValue={180}
-        minimumValue={10}
-        onValueChange={onChange}
-        onSlidingComplete={onComplete}
-      />
-      <Card.Actions
-        style={{ marginTop: -16, justifyContent: 'flex-end' }}
-      >
-        <Button onPress={() => setRestPeriod(60)}>60s</Button>
-        <Button onPress={() => setRestPeriod(90)}>90s</Button>
-        <Button onPress={() => setRestPeriod(120)}>
-          2 mins
-        </Button>
-      </Card.Actions>
-    </SettingsRow>
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 16 }}>Rest period</Text>
+        <Slider
+          style={{ flex: 1 }}
+          value={restPeriod}
+          thumbTintColor="#88f"
+          step={1}
+          maximumValue={180}
+          minimumValue={10}
+          onValueChange={onChange}
+          onSlidingComplete={onComplete}
+        />
+        <Card.Actions
+          style={{ marginTop: -16, justifyContent: 'flex-end' }}
+        >
+          <Button onPress={() => setRestPeriod(60)}>60s</Button>
+          <Button onPress={() => setRestPeriod(90)}>90s</Button>
+          <Button onPress={() => setRestPeriod(120)}>
+            2 mins
+          </Button>
+        </Card.Actions>
+      </View>
+    </View>
   </Card>
 RestPeriodSetting.propTypes = {
   restPeriod: PropTypes.number,
@@ -224,8 +233,8 @@ class Settings extends React.Component {
             <RestPeriodSetting restPeriod={this.state.restPeriod} onChange={this.restPeriodChanged.bind(this)} onComplete={this.saveSettings.bind(this)} setRestPeriod={time => this.setRestPeriod(time)} />
 
             <Subheading style={{ padding: 16 }}>Exercises</Subheading>
-            <Card>
-              <Card.Content>
+            <Card style={{ margin: 4 }}>
+              <View>
                 <FlatList
                   data={this.state.exercises}
                   renderItem={({ item, index, move, moveEnd }) => (
@@ -262,7 +271,7 @@ class Settings extends React.Component {
                   }
                   onAdd={() => this.addExercise()}
                   />
-              </Card.Content>
+              </View>
             </Card>
           </View>
         </ScrollView>
