@@ -5,7 +5,6 @@ import {
   StyleSheet,
   AsyncStorage,
   Keyboard,
-  FlatList,
   TouchableOpacity,
   ScrollView,
   TextInput,
@@ -25,8 +24,9 @@ import {
   IconButton
 } from 'react-native-paper'
 import { Ionicons } from '@expo/vector-icons'
+import Swipeout from 'react-native-swipeout'
 
-// import DraggableFlatList from 'react-native-draggable-flatlist'
+import DraggableFlatList from 'react-native-draggable-flatlist'
 
 const styles = StyleSheet.create({
   container: {
@@ -235,33 +235,38 @@ class Settings extends React.Component {
             <Subheading style={{ padding: 16 }}>Exercises</Subheading>
             <Card style={{ margin: 4 }}>
               <View>
-                <FlatList
+                <DraggableFlatList
                   data={this.state.exercises}
                   renderItem={({ item, index, move, moveEnd }) => (
-                    <TouchableOpacity onLongPress={move} onPressOut={moveEnd}>
-                      <List.Item
-                        title={item.text}
-                        left={props => (
-                          <List.Icon
-                            {...props}
-                            color={'#000'}
-                            icon="event-note"
-                          />
-                        )}
-                        right={() => (
-                          <View style={{ flexDirection: 'row' }}>
-                            { index < this.state.exercises.length - 1 && <IconButton onPress={() => this.moveExerciseDown(index)} icon='arrow-drop-down' /> }
-                            { index > 0 && <IconButton onPress={() => this.moveExerciseUp(index)} icon='arrow-drop-up' />}
-                            <IconButton onPress={() => this.removeExercise(index)} icon='delete' />
-                          </View>
-                        )}
-                      />
-                    </TouchableOpacity>
+                    <Swipeout
+                      autoClose={true}
+                      right={[{
+                        text: 'Remove',
+                        backgroundColor: 'red',
+                        onPress: () => this.removeExercise(index),
+                      }]}
+                      backgroundColor='transparent'
+                    >
+                      <TouchableOpacity
+                        onLongPress={move}
+                        onPressOut={moveEnd}>
+                          <List.Item
+                          title={item.text}
+                          left={props => (
+                            <List.Icon
+                              {...props}
+                              color={'#000'}
+                              icon="event-note"
+                            />
+                          )}
+                        />
+                      </TouchableOpacity>
+                    </Swipeout>
                   )}
-                  keyExtractor={(item, i) => `item-${i}`}
+                  keyExtractor={(item) => `item-${item.text}`}
                   ItemSeparatorComponent={Divider}
                   scrollPercent={5}
-                  onMoveEnd={({ data }) => this.setState({ exercises: data })}
+                  onMoveEnd={({ data }) => this.setState({ exercises: data }, () => this.saveSettings())}
                 />
                 <Divider />
                 <AddExercise

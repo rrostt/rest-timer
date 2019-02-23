@@ -15,6 +15,7 @@
     "react-native-elements": "^1.0.0",
     "react-native-paper": "^2.9.0",
     "react-native-sortable-list": "0.0.22",
+    "react-native-swipeout": "^2.3.6",
     "react-navigation": "^3.1.2",
     "react-navigation-material-bottom-tabs": "^1.0.0"
   },
