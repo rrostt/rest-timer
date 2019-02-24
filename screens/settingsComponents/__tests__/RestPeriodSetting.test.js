@@ -4,6 +4,7 @@ import Renderer from 'react-test-renderer'
 
 import RestPeriodSetting from '../RestPeriodSetting'
 import { Slider } from 'react-native-elements'
+import { Text } from 'react-native'
 
 describe('RestPeriodSetting', () => {
   let value = 10
@@ -12,6 +13,14 @@ describe('RestPeriodSetting', () => {
 
   beforeEach(() => {
     value = 10
+  })
+
+  test('renders value', () => {
+    value = 124
+    const renderer = Renderer.create(<RestPeriodSetting restPeriod={value} onChange={setValue} onComplete={noop} setRestPeriod={setValue} />)
+    const findWithText = text => node => node.type === 'Text' ? node.children.join('') === text : node.children.find(findWithText(text))
+    const text = renderer.root.find(findWithText(`${value}s`))
+    expect(text).not.toBeNull
   })
 
   test('sliding sets value', () => {
