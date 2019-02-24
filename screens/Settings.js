@@ -108,22 +108,42 @@ RestPeriodSetting.propTypes = {
   setRestPeriod: PropTypes.func
 }
 
-const AddExercise = ({ newExerciseName, onChange, onAdd }) =>
-  <View style={{ paddingLeft: 24, paddingRight: 12, flexDirection: 'row', alignItems: 'center' }}>
-    <View style={{  flex: 1 }}>
-      <TextInput
-        style={{ flex: 1 }}
-        label="New Exercise"
-        placeholder="New Exercise"
-        value={newExerciseName}
-        onChangeText={onChange}
-      />
+class AddExercise extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      name: ''
+    }
+
+    this.onChange = text => {
+      this.setState({
+        name: text
+      })
+    }
+
+    this.onPress = () => {
+      this.props.onAdd(this.state.name)
+      this.setState({ name: '' })
+    }
+  }
+
+  render() {
+    return <View style={{ paddingLeft: 24, paddingRight: 12, flexDirection: 'row', alignItems: 'center' }}>
+      <View style={{  flex: 1 }}>
+        <TextInput
+          style={{ flex: 1 }}
+          label="New Exercise"
+          placeholder="New Exercise"
+          value={this.state.name}
+          onChangeText={this.onChange}
+        />
+      </View>
+      <IconButton icon='add' onPress={this.onPress} disabled={this.state.name === ''} />
     </View>
-    <IconButton icon='add' onPress={onAdd} disabled={newExerciseName === ''} />
-  </View>
+  }
+}
 AddExercise.propTypes = {
-  newExerciseName: PropTypes.string,
-  onChange: PropTypes.func,
   onAdd: PropTypes.func
 }
 
@@ -180,13 +200,13 @@ class Settings extends React.Component {
     )
   }
 
-  addExercise() {
+  addExercise(name) {
     Keyboard.dismiss()
     this.setState(
       {
         exercises: [
           ...this.state.exercises,
-          { text: this.state.newExerciseName }
+          { text: name } // this.state.newExerciseName }
         ],
         newExerciseName: ''
       },
@@ -233,56 +253,60 @@ class Settings extends React.Component {
             <RestPeriodSetting restPeriod={this.state.restPeriod} onChange={this.restPeriodChanged.bind(this)} onComplete={this.saveSettings.bind(this)} setRestPeriod={time => this.setRestPeriod(time)} />
 
             <Subheading style={{ padding: 16 }}>Exercises</Subheading>
-            <Card style={{ margin: 4 }}>
-              <View>
-                <DraggableFlatList
-                  data={this.state.exercises}
-                  renderItem={({ item, index, move, moveEnd }) => (
-                    <Swipeout
-                      autoClose={true}
-                      right={[{
-                        text: 'Remove',
-                        backgroundColor: 'red',
-                        onPress: () => this.removeExercise(index),
-                      }]}
-                      backgroundColor='transparent'
-                    >
-                      <TouchableOpacity
-                        onLongPress={move}
-                        onPressOut={moveEnd}>
-                          <List.Item
-                          title={item.text}
-                          left={props => (
-                            <List.Icon
-                              {...props}
-                              color={'#000'}
-                              icon="event-note"
-                            />
-                          )}
-                        />
-                      </TouchableOpacity>
-                    </Swipeout>
-                  )}
-                  keyExtractor={(item) => `item-${item.text}`}
-                  ItemSeparatorComponent={Divider}
-                  scrollPercent={5}
-                  onMoveEnd={({ data }) => this.setState({ exercises: data }, () => this.saveSettings())}
-                />
-                <Divider />
-                <AddExercise
-                  newExerciseName={this.state.newExerciseName}
-                  onChange={text =>
-                    this.setState({ newExerciseName: text })
-                  }
-                  onAdd={() => this.addExercise()}
-                  />
-              </View>
-            </Card>
+            <ExercisesSettings
+              exercises={this.state.exercises}
+              onChange={(exercises) => this.setState({ exercises }, () => this.saveSettings())}
+              onAdd={name => this.addExercise(name)}
+              onRemove={index => this.removeExercise(index)}
+              />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
     )
   }
 }
+
+const ExercisesSettings = ({ exercises, onChange, onAdd, onRemove }) =>
+  <Card style={{ margin: 4 }}>
+    <View>
+      <DraggableFlatList
+        data={exercises}
+        renderItem={({ item, index, move, moveEnd }) => (
+          <Swipeout
+            autoClose={true}
+            right={[{
+              text: 'Remove',
+              backgroundColor: 'red',
+              onPress: () => onRemove(index),
+            }]}
+            backgroundColor='transparent'
+          >
+            <TouchableOpacity
+              onLongPress={move}
+              onPressOut={moveEnd}>
+                <List.Item
+                title={item.text}
+                left={props => (
+                  <List.Icon
+                    {...props}
+                    color={'#000'}
+                    icon="event-note"
+                  />
+                )}
+              />
+            </TouchableOpacity>
+          </Swipeout>
+        )}
+        keyExtractor={(item) => `item-${item.text}`}
+        ItemSeparatorComponent={Divider}
+        scrollPercent={5}
+        onMoveEnd={({ data }) => onChange(data)}
+      />
+      <Divider />
+      <AddExercise
+        onAdd={onAdd}
+        />
+    </View>
+  </Card>
 
 export default Settings
