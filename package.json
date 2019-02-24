@@ -4,7 +4,8 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "test": "jest"
   },
   "dependencies": {
     "expo": "^32.0.0",
@@ -24,7 +25,18 @@
     "babel-eslint": "^10.0.1",
     "babel-preset-expo": "^5.0.0",
     "eslint": "^5.12.1",
-    "eslint-plugin-react": "^7.12.4"
+    "eslint-plugin-react": "^7.12.4",
+    "jest": "^24.1.0",
+    "jest-dom": "^3.1.2",
+    "jest-expo": "^32.0.0",
+    "react-dom": "^16.8.3",
+    "react-test-renderer": "^16.8.3"
   },
-  "private": true
+  "private": true,
+  "jest": {
+    "preset": "jest-expo",
+    "transformIgnorePatterns": [
+      "node_modules/(?!(react-native|react-native-[^/]*|jest-expo|react-native-status-bar-height|@expo|expo-[^/]*)/)"
+    ]
+  }
 }
